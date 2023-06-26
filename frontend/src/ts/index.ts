@@ -17,6 +17,7 @@ import "./controllers/account-controller";
 import { enable } from "./states/glarses-mode";
 import "./test/caps-warning";
 import "./popups/support-popup";
+import "./popups/tutorialWrapperPopup";
 import "./popups/contact-popup";
 import "./popups/version-popup";
 import "./popups/edit-preset-popup";
