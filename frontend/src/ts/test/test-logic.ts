@@ -14,6 +14,7 @@ import * as Focus from "./focus";
 import * as Funbox from "./funbox/funbox";
 import * as Keymap from "../elements/keymap";
 import * as ThemeController from "../controllers/theme-controller";
+import * as ResultWordHighlight from "../elements/result-word-highlight";
 import * as PaceCaret from "./pace-caret";
 import * as Caret from "./caret";
 import * as LiveWpm from "./live-wpm";
@@ -454,10 +455,13 @@ export function restart(options = {} as RestartOptions): void {
         );
     }
   );
+
+  ResultWordHighlight.destroy();
 }
 
 let rememberLazyMode: boolean;
 let testReinitCount = 0;
+let languageBeforeQuoteMode: string | undefined;
 export async function init(): Promise<void> {
   console.debug("Initializing test");
   testReinitCount++;
@@ -520,7 +524,18 @@ export async function init(): Promise<void> {
       group.name !== "other" &&
       group.name !== Config.language
     ) {
+      languageBeforeQuoteMode = Config.language;
       UpdateConfig.setLanguage(group.name);
+    }
+  } else {
+    if (
+      languageBeforeQuoteMode &&
+      Config.language === languageBeforeQuoteMode.split("_")[0]
+    ) {
+      UpdateConfig.setLanguage(languageBeforeQuoteMode);
+      languageBeforeQuoteMode = undefined;
+      await init();
+      return;
     }
   }
 
@@ -917,7 +932,6 @@ function buildCompletedEvent(difficultyFailed: boolean): CompletedEvent {
     delete completedEvent.quoteLength;
   }
 
-  // @ts-ignore TODO fix this
   completedEvent.mode2 = Misc.getMode2(Config, TestWords.randomQuote);
 
   if (Config.mode === "custom") {
