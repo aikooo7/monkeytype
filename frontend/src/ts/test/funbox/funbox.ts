@@ -19,6 +19,7 @@ import {
   checkFunboxForcedConfigs,
 } from "./funbox-validation";
 import { Wordset } from "../wordset";
+import * as LayoutfluidFunboxTimer from "./layoutfluid-funbox-timer";
 
 const prefixSize = 2;
 
@@ -291,17 +292,31 @@ FunboxList.setFunboxFunctions("layoutfluid", {
       const layouts: string[] = Config.customLayoutfluid
         ? Config.customLayoutfluid.split("#")
         : ["qwerty", "dvorak", "colemak"];
-      let index = 0;
       const outOf: number = TestWords.words.length;
-      index = Math.floor(
-        (TestInput.input.history.length + 1) / (outOf / layouts.length)
+      const wordsPerLayout = Math.floor(outOf / layouts.length);
+      const index = Math.floor(
+        (TestInput.input.history.length + 1) / wordsPerLayout
       );
-      if (Config.layout !== layouts[index] && layouts[index] !== undefined) {
-        Notifications.add(`--- !!! ${layouts[index]} !!! ---`, 0);
-      }
-      if (layouts[index]) {
-        UpdateConfig.setLayout(layouts[index]);
-        UpdateConfig.setKeymapLayout(layouts[index]);
+      const mod =
+        wordsPerLayout - ((TestWords.words.currentIndex + 1) % wordsPerLayout);
+
+      console.log(wordsPerLayout);
+      console.log(mod);
+
+      if (layouts[index + 1]) {
+        if (mod <= 3) {
+          LayoutfluidFunboxTimer.show();
+          LayoutfluidFunboxTimer.updateWords(mod, layouts[index + 1]);
+        }
+        if (mod === wordsPerLayout) {
+          UpdateConfig.setLayout(layouts[index]);
+          UpdateConfig.setKeymapLayout(layouts[index]);
+          if (mod > 3) {
+            LayoutfluidFunboxTimer.hide();
+          }
+        }
+      } else {
+        LayoutfluidFunboxTimer.hide();
       }
       setTimeout(() => {
         KeymapEvent.highlight(
@@ -557,6 +572,9 @@ export function toggleScript(...params: string[]): void {
 }
 
 export function setFunbox(funbox: string): boolean {
+  if (funbox === "none") {
+    FunboxList.get(Config.funbox).forEach((f) => f.functions?.clearGlobal?.());
+  }
   FunboxMemory.load();
   UpdateConfig.setFunbox(funbox, false);
   return true;
@@ -578,6 +596,14 @@ export function toggleFunbox(funbox: string): boolean {
   }
   FunboxMemory.load();
   const e = UpdateConfig.toggleFunbox(funbox, false);
+
+  if (!Config.funbox.includes(funbox)) {
+    FunboxList.get(funbox).forEach((f) => f.functions?.clearGlobal?.());
+  } else {
+    FunboxList.get(funbox).forEach((f) => f.functions?.applyGlobalCSS?.());
+  }
+
+  //todo find out what the hell this means
   if (e === false || e === true) return false;
   return true;
 }
@@ -725,5 +751,18 @@ export async function rememberSettings(): Promise<void> {
 FunboxList.setFunboxFunctions("morse", {
   alterText(word: string): string {
     return Misc.convertToMorse(word);
+  },
+});
+
+FunboxList.setFunboxFunctions("crt", {
+  applyGlobalCSS(): void {
+    $("body").append('<div id="scanline" />');
+    $("body").addClass("crtmode");
+    $("#globalFunBoxTheme").attr("href", `funbox/crt.css`);
+  },
+  clearGlobal(): void {
+    $("#scanline").remove();
+    $("body").removeClass("crtmode");
+    $("#globalFunBoxTheme").attr("href", ``);
   },
 });

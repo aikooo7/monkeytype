@@ -268,7 +268,6 @@ function handleSpace(): void {
     }
     Replay.addReplayEvent("submitErrorWord");
   }
-  TestInput.updateLastKeypress();
 
   let wordLength: number;
   if (Config.mode === "zen") {
@@ -425,9 +424,7 @@ function handleChar(
     return;
   }
 
-  if (TestInput.spacingDebug) {
-    console.log("handleChar", char, charIndex, realInputValue);
-  }
+  console.debug("Handling char", char, charIndex, realInputValue);
 
   const now = performance.now();
 
@@ -586,7 +583,6 @@ function handleChar(
   }
 
   TestInput.incrementKeypressCount();
-  TestInput.updateLastKeypress();
   TestInput.pushKeypressWord(TestWords.words.currentIndex);
 
   if (
@@ -873,7 +869,7 @@ $(document).keydown(async (event) => {
     return;
   }
 
-  TestInput.setKeypressNotAfk();
+  TestInput.setCurrentNotAfk();
 
   //blocking firefox from going back in history with backspace
   if (event.key === "Backspace") {
@@ -930,7 +926,7 @@ $(document).keydown(async (event) => {
             );
           }
         } else {
-          TestInput.setBailout(true);
+          TestState.setBailedOut(true);
           TestLogic.finish();
         }
       }
@@ -1031,9 +1027,7 @@ $("#wordsInput").keydown((event) => {
     return;
   }
 
-  if (TestInput.spacingDebug) {
-    console.log("spacing debug keydown", event.key, event.code, event.which);
-  }
+  // console.debug("Event: keydown", event);
 
   if (event.code === "NumpadEnter" && Config.funbox.includes("58008")) {
     event.code = "Space";
@@ -1062,9 +1056,7 @@ $("#wordsInput").keyup((event) => {
     return;
   }
 
-  if (TestInput.spacingDebug) {
-    console.log("spacing debug keyup", event.key, event.code, event.which);
-  }
+  // console.debug("Event: keyup", event);
 
   if (event.code === "NumpadEnter" && Config.funbox.includes("58008")) {
     event.code = "Space";
@@ -1110,7 +1102,7 @@ $("#wordsInput").on("input", (event) => {
   const popupVisible = Misc.isAnyPopupVisible();
   if (popupVisible) return;
 
-  TestInput.setKeypressNotAfk();
+  TestInput.setCurrentNotAfk();
 
   if (
     (Config.layout === "default" || Config.layout === "korean") &&

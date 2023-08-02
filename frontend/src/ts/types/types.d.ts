@@ -236,6 +236,8 @@ declare namespace MonkeyTypes {
     alterText?: (word: string) => string;
     applyCSS?: () => void;
     applyConfig?: () => void;
+    applyGlobalCSS?: () => void;
+    clearGlobal?: () => void;
     rememberSettings?: () => void;
     toggleScript?: (params: string[]) => void;
     pullSection?: (language?: string) => Promise<Misc.Section | false>;
@@ -825,7 +827,7 @@ declare namespace MonkeyTypes {
     row5: string[];
   }
 
-  interface WordsPerMinuteAndRaw {
+  interface WpmAndRaw {
     wpm: number;
     raw: number;
   }
