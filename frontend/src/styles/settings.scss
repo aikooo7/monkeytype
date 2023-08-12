@@ -465,11 +465,12 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr;
         gap: 0.5rem;
-        margin-top: 1rem;
+        margin-top: 0.5rem;
       }
     }
 
-    &.randomTheme .buttons {
+    &.randomTheme .buttons,
+    &.highlightMode .buttons {
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     }
   }

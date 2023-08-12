@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "before:init": ["npm run lint", "npm run test-be"],
+    "before:release": [
+      "sh ./bin/deployBackend.sh",
+      "cd frontend && npm run deploy-live",
+      "sh ./bin/purgeCfCache.sh"
+    ]
+  },
+  "git": {
+    "commitMessage": "chore: release v${version}",
+    "requireCleanWorkingDir": true
+  },
+  "github": {
+    "release": true
+  },
+  "npm": {
+    "publish": false,
+    "ignoreVersion": true
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "conventionalcommits",
+      "writerOpts": {
+        "headerPartial": "Thank you to all the contributors!"
+      }
+    }
+  }
+}
