@@ -33,6 +33,10 @@ $("#popups").on("click", "#tutorialPopupWrapper .button", () => {
   hide();
 });
 
+$("#sectionWelcome").on("click", () => {
+  alert("Welcome button was clicked.");
+});
+
 $(document).on("keypress", "#tutorialButton", (e) => {
   if (e.key === "Enter") {
     $(e.currentTarget).trigger("click");
